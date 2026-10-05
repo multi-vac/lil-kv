@@ -31,7 +31,7 @@ def read(key):
 def build_parser():
     parser = argparse.ArgumentParser(
         prog="lilkv",
-        description="Little file based key-value database.",
+        description="A little append-only key-value database",
         exit_on_error=False
     )
     parser.add_argument("command", choices=["get", "set"])
@@ -59,7 +59,7 @@ def run():
 
     while True:
         try:
-            cli_args = input("lilkv>> ").strip()
+            cli_args = input("lil-kv>> ").strip()
         except (KeyboardInterrupt, EOFError):
             print("\nBye!")
             break
