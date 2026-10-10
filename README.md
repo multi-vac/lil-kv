@@ -13,7 +13,7 @@ lil-kv>>
 
 ## Roadmap
 
-- [ ] Add the index.
+- [x] Add the index.
 - [ ] `set a` stores null, `get a` prints `None`.
 - [ ] `get unknown` also prints `None`.
 - [ ] `set -a b` doesn't work.
