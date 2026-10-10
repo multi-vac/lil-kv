@@ -5,6 +5,7 @@ import shlex
 
 
 DB_FILE = "lilkv.jsonl"
+INDEX = {}
 
 
 def init_file():
@@ -14,17 +15,49 @@ def init_file():
 
 
 def write(key, value):
-    with open(DB_FILE, "a") as f:
-        f.write(json.dumps({key: value}) + "\n")
+    with open(DB_FILE, "ab") as f:
+        current_position = f.tell()
+        f.write((json.dumps({key: value}) + "\n").encode())
+        add_to_index(key, current_position)
 
 
 def read(key):
-    with open(DB_FILE, "r") as f:
+    try:
+        return read_from_index(key)
+    except KeyError:
+        pass
+
+    with open(DB_FILE, "rb") as f:
         lines = f.readlines()
         value = None
         for line in lines:
             json_line = json.loads(line)
             value = json_line.get(key, value)
+        return value
+
+
+def build_index():
+    with open(DB_FILE, "rb") as f:
+        current_position = 0
+        for line in f:
+            key = next(iter(json.loads(line).keys()))
+            add_to_index(key, current_position)
+            current_position = f.tell()
+
+
+def add_to_index(key, current_position):
+    INDEX[key] = current_position
+    print(f"Added {key} to {current_position}")
+
+
+def read_from_index(key):
+    if key not in INDEX:
+        raise KeyError
+
+    with open(DB_FILE, "rb") as f:
+        f.seek(INDEX[key])
+        value = json.loads(f.readline())[key]
+        print(f"Read {key} from {INDEX[key]} with value {value}")
         return value
 
 
@@ -55,6 +88,7 @@ def parse_args(parser, cli_args):
 
 def run():
     init_file()
+    build_index()
     parser = build_parser()
 
     while True:
